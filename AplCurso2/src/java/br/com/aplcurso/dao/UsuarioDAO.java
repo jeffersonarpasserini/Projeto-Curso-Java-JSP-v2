@@ -23,12 +23,44 @@ public class UsuarioDAO implements GenericDAO {
     
     @Override
     public Boolean cadastrar(Object objeto) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        Usuario oUsuario = (Usuario) objeto;
+        Boolean retorno=false;
+        if (oUsuario.getId()== 0) {
+            retorno = this.inserir(oUsuario);
+        }else{
+            retorno = this.alterar(oUsuario);
+        }
+        return retorno;
     }
 
     @Override
     public Boolean inserir(Object objeto) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        Usuario oUsuario = (Usuario) objeto;
+        PreparedStatement stmt = null;
+        String sql = "insert into usuario (nome,datanascimento, cpf, email, senha, salario) "
+                + "values (?,?,?,?,?,?)";  
+        try {
+            stmt = conexao.prepareStatement(sql);
+            stmt.setString(1, oUsuario.getNome());        
+            stmt.setDate(2,new java.sql.Date(oUsuario.getDataNascimento().getTime()));
+            stmt.setString(3, oUsuario.getCpf());
+            stmt.setString(4, oUsuario.getEmail());
+            stmt.setString(5, oUsuario.getSenha());
+            stmt.setDouble(6, oUsuario.getSalario());
+            stmt.execute();
+            conexao.commit();
+            return true;
+        } catch (Exception ex) {
+            try {
+                System.out.println("Problemas ao cadastrar a Usuário! Erro: "+ex.getMessage());
+                ex.printStackTrace();
+                conexao.rollback();
+            } catch (SQLException e) {
+                System.out.println("Erro:"+e.getMessage());
+                e.printStackTrace();
+            }
+            return false;
+        } 
     }
 
     @Override
