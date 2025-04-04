@@ -37,7 +37,7 @@ public class UsuarioDAO implements GenericDAO {
     public Boolean inserir(Object objeto) {
         Usuario oUsuario = (Usuario) objeto;
         PreparedStatement stmt = null;
-        String sql = "insert into usuario (nome,datanascimento, cpf, email, senha, salario) "
+        String sql = "insert into usuario (nome, datanascimento, cpf, email, senha, salario) "
                 + "values (?,?,?,?,?,?)";  
         try {
             stmt = conexao.prepareStatement(sql);
@@ -104,5 +104,23 @@ public class UsuarioDAO implements GenericDAO {
         
         return resultado;
     }
+    
+    public static boolean cpfExiste(String cpf) {
+        String sql = "SELECT COUNT(*) FROM usuario WHERE cpf = ?";
+        try (Connection conn = SingleConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
+            stmt.setString(1, cpf);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

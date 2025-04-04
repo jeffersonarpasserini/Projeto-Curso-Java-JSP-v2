@@ -120,22 +120,52 @@
             this.select();
         });
         
-        $('#cpf').blur(function(){
+        $('#cpf').blur(function () {
             var cpfLimpo = $('#cpf').unmask().val();
             console.log("CPF Limpo:");
             console.log(cpfLimpo);
-            if (!validarCpfCnpj(cpfLimpo)){
-                 Swal.fire({
-                     position: 'center',
-                     icon: 'error',
-                     title: 'Verifique o CPF/CNPJ!',
-                     showConfirmButton: true,
-                     timer: 10000
-                 });
-             }else{
+
+            if (!validarCpfCnpj(cpfLimpo)) {
+                Swal.fire({
+                    position: 'center',
+                    icon: 'error',
+                    title: 'Verifique o CPF/CNPJ!',
+                    showConfirmButton: true,
+                    timer: 10000
+                });
+            } else {
+                console.log("validou digito verificador cpf");
                 trocaMascara($('#cpf').val());
+                console.log("verificando cpf no backend");
+                // Se passou pela validação local, faz a verificação no backend
+                $.ajax({
+                    type: 'get',
+                    url: 'UsuarioVerificarCpf', // sua servlet ou endpoint no backend
+                    data: { cpf: cpfLimpo },
+                    success: function (response) {
+                        console.log("resposta validacao backend:")
+                        console.log(response);
+                        if (response == '1') {
+                            Swal.fire({
+                                position: 'center',
+                                icon: 'warning',
+                                title: 'CPF já cadastrado!',
+                                text: 'Por favor, verifique o CPF informado.',
+                                showConfirmButton: true,
+                                timer: 4000
+                            }).then(function () {
+                                $('#cpf').focus();
+                            });
+                        }
+                    },
+                    error: function () {
+                        console.log("Erro ao verificar CPF no servidor.");
+                    }
+                });
             }
         });
+        
+        $('#nome').focus();
     });
     
     function trocaMascara(cpfCnpj) {
@@ -226,50 +256,62 @@
         console.log("Gravando dados ....");
         $.ajax({
             type: 'post',
-            url: 'DespesaCadastrar',
+            url: 'UsuarioCadastrar',
             data: {
                 id: $('#id').val(),
-                nome: $('#nome').val(),
+                nome: $('#nome').val().toUpperCase(),
                 cpf: $('#cpf').unmask().val(),
                 datanascimento: $('#datanascimento').val(),
                 salario: $('#salario').val(),
                 email: $('#email').val(),
                 senha: $('#senha').val()
             },
-            success:
-                    function (data) {
-                        console.log("reposta servlet->");
-                        console.log(data);
-                        if (data == 1) {
-                            Swal.fire({
-                                position: 'center',
-                                icon: 'success',
-                                title: 'Sucesso',
-                                text: 'Usuario gravado com sucesso!',
-                                showConfirmButton: true,
-                                timer: 10000
-                            }).then(function(){
-                                window.location.href = "${pageContext.request.contextPath}/UsuarioListar";
-                            })
-                        } else {
-                            Swal.fire({
-                                position: 'center',
-                                icon: 'error',
-                                title: 'Erro',
-                                text: 'Não foi possível gravar o usuário!',
-                                showConfirmButton: true,
-                                timer: 10000
-                            }).then(function(){
-                                window.location.href = "${pageContext.request.contextPath}/UsuarioListar";
-                            })
-                        }
-                    },
-            error:
-                    function (data) {
-                        window.location.href = "${pageContext.request.contextPath}/UsuarioListar";
-                    }
+            success: function (data) {
+                console.log("resposta servlet->");
+                console.log(data);
+                if (data == 1) {
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'success',
+                        title: 'Sucesso',
+                        text: 'Usuário gravado com sucesso!',
+                        showConfirmButton: true,
+                        timer: 3000
+                    }).then(function () {
+                        // RECARREGA A PÁGINA INTEIRA com formulário limpo
+                        window.location.href = 'UsuarioNovo';
+                    });
+                } else {
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'error',
+                        title: 'Não foi possível gravar o usuário!',
+                        showConfirmButton: true,
+                        timer: 5000
+                    }).then(function () {
+                        setTimeout(function () {
+                            $('#nome').focus();
+                        }, 50); // um pequeno atraso resolve o problema
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    position: 'center',
+                    icon: 'error',
+                    title: 'Erro de comunicação',
+                    text: 'Falha na comunicação com o servidor.',
+                    showConfirmButton: true,
+                    timer: 5000
+                }).then(function () {
+                    setTimeout(function () {
+                        $('#nome').focus();
+                    }, 50);
+                });
+            }
         });
     }
-    
+
+
 </script>   
 <jsp:include page="/footer.jsp"/>
