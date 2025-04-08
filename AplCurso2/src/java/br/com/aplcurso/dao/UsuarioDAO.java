@@ -105,19 +105,15 @@ public class UsuarioDAO implements GenericDAO {
         return resultado;
     }
     
-    public static boolean cpfExiste(String cpf) {
-        String sql = "SELECT COUNT(*) FROM usuario WHERE cpf = ?";
-        try (Connection conn = SingleConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+    public boolean cpfExiste(String cpf) {
+        String sql = "SELECT COUNT(*) as quantidade_cpf FROM usuario WHERE cpf = ?";
+        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, cpf);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                if (rs.getInt("quantidade_cpf") > 0)
                     return true;
-                }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }

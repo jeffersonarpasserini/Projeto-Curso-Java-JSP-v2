@@ -7,6 +7,7 @@ package br.com.aplcurso.controller.usuario;
 import br.com.aplcurso.dao.GenericDAO;
 import br.com.aplcurso.dao.UsuarioDAO;
 import br.com.aplcurso.model.Usuario;
+import br.com.aplcurso.utils.DocumentoValidador;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
@@ -38,6 +39,8 @@ public class UsuarioCadastrar extends HttpServlet {
         response.setContentType("text/html;charset=iso-8859-1");
         try{
             
+            UsuarioDAO dao = new UsuarioDAO();
+            
             int id = Integer.parseInt(request.getParameter("id"));
             String nome = request.getParameter("nome");
             Date dataNascimento = java.sql.Date.valueOf(request.getParameter("datanascimento"));
@@ -55,22 +58,35 @@ public class UsuarioCadastrar extends HttpServlet {
 
             double salario = Double.parseDouble(salarioStr);
             
-            Usuario oUsuario = new Usuario();
-            oUsuario.setId(id);
-            oUsuario.setNome(nome);
-            oUsuario.setCpf(cpf);
-            oUsuario.setDataNascimento(dataNascimento);
-            oUsuario.setEmail(email);
-            oUsuario.setSenha(senha);
-            oUsuario.setSalario(salario);
-                
-            GenericDAO dao = new UsuarioDAO();
-            if (dao.cadastrar(oUsuario)){
-                response.getWriter().write("1");               
+            //Tratamento para o CPF
+            if (!DocumentoValidador.isDocumentoValido(cpf)){
+                //verifica se cpf é valido
+                response.getWriter().write("3");
+            } else if (dao.cpfExiste(cpf)){
+                //verifica se cpf já esta cadastrado
+                response.getWriter().write("4");
+            } else if (nome.isEmpty() || nome.isBlank() || salario <= 0 || 
+                       email.isBlank() || email.isEmpty() || senha.isBlank() ||
+                       senha.isEmpty()) {
+                //verifica inconsistencias em outros atributos do cadastro
+                response.getWriter().write("5");
             } else {
-                response.getWriter().write("0");
+                //passou nas validacoes - grava dados
+                Usuario oUsuario = new Usuario();
+                oUsuario.setId(id);
+                oUsuario.setNome(nome);
+                oUsuario.setCpf(cpf);
+                oUsuario.setDataNascimento(dataNascimento);
+                oUsuario.setEmail(email);
+                oUsuario.setSenha(senha);
+                oUsuario.setSalario(salario);
+
+                if (dao.cadastrar(oUsuario)){
+                    response.getWriter().write("1");               
+                } else {
+                    response.getWriter().write("0");
+                }
             }
-            
         } catch (Exception ex){
              System.out.println("Problemas no Servlet ao cadastrar Usuario! Erro: " + ex.getMessage());
         }

@@ -4,6 +4,7 @@
  */
 package br.com.aplcurso.controller.usuario;
 
+import br.com.aplcurso.dao.GenericDAO;
 import br.com.aplcurso.dao.UsuarioDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -34,10 +35,10 @@ public class UsuarioVerificarCpf extends HttpServlet {
         
         response.setContentType("text/html;charset=iso-8859-1");
         try{
-            
+            UsuarioDAO usuarioDAO = new UsuarioDAO();
             String cpf = request.getParameter("cpf");
             response.setContentType("application/json");
-            if (UsuarioDAO.cpfExiste(cpf)){
+            if (usuarioDAO.cpfExiste(cpf)){
                 response.getWriter().write("1");
             } else {
                 response.getWriter().write("0");
