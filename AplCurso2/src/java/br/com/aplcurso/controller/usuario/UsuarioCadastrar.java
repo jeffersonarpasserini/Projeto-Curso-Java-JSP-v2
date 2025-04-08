@@ -62,7 +62,7 @@ public class UsuarioCadastrar extends HttpServlet {
             if (!DocumentoValidador.isDocumentoValido(cpf)){
                 //verifica se cpf é valido
                 response.getWriter().write("3");
-            } else if (dao.cpfExiste(cpf)){
+            } else if (dao.cpfExiste(cpf) && id == 0){
                 //verifica se cpf já esta cadastrado
                 response.getWriter().write("4");
             } else if (nome.isEmpty() || nome.isBlank() || salario <= 0 || 

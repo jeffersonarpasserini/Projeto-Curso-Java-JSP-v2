@@ -111,30 +111,32 @@
                 trocaMascara($('#cpf').val());
                 console.log("verificando cpf no backend");
                 // Se passou pela validação local, faz a verificação no backend
-                $.ajax({
-                    type: 'get',
-                    url: 'UsuarioVerificarCpf', // sua servlet ou endpoint no backend
-                    data: { cpf: cpfLimpo },
-                    success: function (response) {
-                        console.log("resposta validacao backend:")
-                        console.log(response);
-                        if (response == '1') {
-                            Swal.fire({
-                                position: 'center',
-                                icon: 'warning',
-                                title: 'CPF já cadastrado!',
-                                text: 'Por favor, verifique o CPF informado.',
-                                showConfirmButton: true,
-                                timer: 4000
-                            }).then(function () {
-                                $('#nome').focus();
-                            });
+                if ($('#id').val() == 0){
+                    $.ajax({
+                        type: 'get',
+                        url: 'UsuarioVerificarCpf', // sua servlet ou endpoint no backend
+                        data: { cpf: cpfLimpo },
+                        success: function (response) {
+                            console.log("resposta validacao backend:")
+                            console.log(response);
+                            if (response == '1') {
+                                Swal.fire({
+                                    position: 'center',
+                                    icon: 'warning',
+                                    title: 'CPF já cadastrado!',
+                                    text: 'Por favor, verifique o CPF informado.',
+                                    showConfirmButton: true,
+                                    timer: 4000
+                                }).then(function () {
+                                    $('#nome').focus();
+                                });
+                            }
+                        },
+                        error: function () {
+                            console.log("Erro ao verificar CPF no servidor.");
                         }
-                    },
-                    error: function () {
-                        console.log("Erro ao verificar CPF no servidor.");
-                    }
-                });
+                    });
+                }
             }
         });
         

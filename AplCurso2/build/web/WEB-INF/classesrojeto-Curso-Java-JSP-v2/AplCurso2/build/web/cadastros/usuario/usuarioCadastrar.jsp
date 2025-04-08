@@ -50,13 +50,13 @@
                     </div>
                     <div class="form-group">
                         <label>Email</label>
-                        <input class="form-control" type="text" name="email" id="email" 
-                               value="${usuario.email}" size="100" maxlength="100"/>
+                        <input class="form-control" type="email" name="email" id="email" 
+                               value="${usuario.email}" size="100" maxlength="100" required="true"/>
                     </div>
                     <div class="form-group">
                         <label>Senha</label>
-                        <input class="form-control" type="text" name="senha" id="senha" 
-                               value="${usuario.senha}" size="100" maxlength="100"/>
+                        <input class="form-control" type="password" name="senha" id="senha" 
+                               value="${usuario.senha}" size="100" maxlength="100" required="true"/>
                     </div>
                     <!-- Botão de Confirmação --> 
                     <div class="form-group">
@@ -68,33 +68,6 @@
         </div>
     </div>
 </div>
-
-<style type="text/css">
-    .inputfile {
-        /* visibility: hidden etc. wont work */
-        width: 0.1px;
-        height: 0.1px;
-        opacity: 0;
-        overflow: hidden;
-        position: absolute;
-        z-index: -1;    }
-    .inputfile:focus + label {
-        /* keyboard navigation */
-        outline: 1px dotted #000;
-        outline: -webkit-focus-ring-color auto 5px;    }
-    .inputfile + label * {
-        pointer-events: none;    }
-    .borda{
-        position: relative;
-        margin: 0 20px 30px 0;
-        padding: 10px;
-        border: 1px solid #e1e1e1;
-        border-radius: 3px;
-        background: #fff;
-        -webkit-box-shadow: 0px 0px 3px rgba(0,0,0,0.06);
-        -moz-box-shadow: 0px 0px 3px rgba(0,0,0,0.06);
-        box-shadow: 0px 0px 3px rgba(0,0,0,0.06);    }
-</style>
 
 <script>
     $(document).ready(function () {
@@ -138,30 +111,32 @@
                 trocaMascara($('#cpf').val());
                 console.log("verificando cpf no backend");
                 // Se passou pela validação local, faz a verificação no backend
-                $.ajax({
-                    type: 'get',
-                    url: 'UsuarioVerificarCpf', // sua servlet ou endpoint no backend
-                    data: { cpf: cpfLimpo },
-                    success: function (response) {
-                        console.log("resposta validacao backend:")
-                        console.log(response);
-                        if (response == '1') {
-                            Swal.fire({
-                                position: 'center',
-                                icon: 'warning',
-                                title: 'CPF já cadastrado!',
-                                text: 'Por favor, verifique o CPF informado.',
-                                showConfirmButton: true,
-                                timer: 4000
-                            }).then(function () {
-                                $('#cpf').focus();
-                            });
+                if ($('#id').val() == 0){
+                    $.ajax({
+                        type: 'get',
+                        url: 'UsuarioVerificarCpf', // sua servlet ou endpoint no backend
+                        data: { cpf: cpfLimpo },
+                        success: function (response) {
+                            console.log("resposta validacao backend:")
+                            console.log(response);
+                            if (response == '1') {
+                                Swal.fire({
+                                    position: 'center',
+                                    icon: 'warning',
+                                    title: 'CPF já cadastrado!',
+                                    text: 'Por favor, verifique o CPF informado.',
+                                    showConfirmButton: true,
+                                    timer: 4000
+                                }).then(function () {
+                                    $('#nome').focus();
+                                });
+                            }
+                        },
+                        error: function () {
+                            console.log("Erro ao verificar CPF no servidor.");
                         }
-                    },
-                    error: function () {
-                        console.log("Erro ao verificar CPF no servidor.");
-                    }
-                });
+                    });
+                }
             }
         });
         
@@ -280,6 +255,42 @@
                     }).then(function () {
                         // RECARREGA A PÁGINA INTEIRA com formulário limpo
                         window.location.href = 'UsuarioNovo';
+                    });
+                } else if (data == 3) {
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'error',
+                        title: 'CPF invalido!',
+                        showConfirmButton: true,
+                        timer: 5000
+                    }).then(function () {
+                        setTimeout(function () {
+                            $('#nome').focus();
+                        }, 50); 
+                    });
+                } else if (data == 4) {
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'error',
+                        title: 'CPF já cadastrado!',
+                        showConfirmButton: true,
+                        timer: 5000
+                    }).then(function () {
+                        setTimeout(function () {
+                            $('#nome').focus();
+                        }, 50); 
+                    });
+                } else if (data == 5) {
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'error',
+                        title: 'Dados em branco ou não informados, verifique!',
+                        showConfirmButton: true,
+                        timer: 5000
+                    }).then(function () {
+                        setTimeout(function () {
+                            $('#nome').focus();
+                        }, 50); 
                     });
                 } else {
                     Swal.fire({
