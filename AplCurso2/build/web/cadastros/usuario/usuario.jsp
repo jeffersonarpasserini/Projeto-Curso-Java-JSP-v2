@@ -40,7 +40,7 @@
                             </td>
                             <td align="right"><fmt:formatNumber value = "${usuario.salario}" type = "currency"/></td>
                             <td align="center">
-                                <a href="${pageContext.request.contextPath}/UsuarioExcluir?id=${usuario.id}">
+                                <a href="#" id="deletar" title="Excluir" onclick="deletar(${usuario.id})">
                                     <button>Excluir</button>
                                 </a>
                             </td>                        
@@ -81,5 +81,57 @@
                 }
             });
         });
+        
+    function deletar(codigo){
+        var id = codigo;
+        console.log(codigo);
+        Swal.fire({
+            title: 'Você tem certeza?',
+            text: "Você não poderá recuperar depois!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sim, apague o usuário!',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    type: 'post',
+                    url: '${pageContext.request.contextPath}/UsuarioExcluir',
+                    data:{
+                        id: id
+                    },
+                    success:
+                        function(data){
+                            if(data == 1){
+                                Swal.fire({
+                                    position: 'top-end',
+                                    icon: 'success',
+                                    title: 'Sucesso',
+                                    text: 'Usuário excluído com sucesso!',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                })
+                            } else {
+                                Swal.fire({
+                                    position: 'top-end',
+                                    icon: 'error',
+                                    title: 'Erro',
+                                    text: 'Não foi possível excluir o usuário!',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                })
+                            }
+                            window.location.href = "${pageContext.request.contextPath}/UsuarioListar";
+                        },
+                    error:
+                        function(data){
+                            window.location.href = "${pageContext.request.contextPath}/UsuarioListar";
+                        }
+                });
+            };
+        });
+    }
 </script>
  <%@include file="/footer.jsp"%>

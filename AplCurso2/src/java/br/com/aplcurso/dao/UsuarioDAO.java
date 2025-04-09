@@ -96,7 +96,25 @@ public class UsuarioDAO implements GenericDAO {
 
     @Override
     public Boolean excluir(int numero) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        PreparedStatement stmt = null;
+        String sql = "delete from usuario where id=?";  
+        try {
+            stmt = conexao.prepareStatement(sql);
+            stmt.setInt(1, numero);
+            stmt.execute();
+            conexao.commit();
+            return true;
+        } catch (Exception ex) {
+            try {
+                System.out.println("Problemas ao excluir o Usuário! Erro: "+ex.getMessage());
+                ex.printStackTrace();
+                conexao.rollback();
+            } catch (SQLException e) {
+                System.out.println("Erro:"+e.getMessage());
+                e.printStackTrace();
+            }
+            return false;
+        }  
     }
 
     @Override
